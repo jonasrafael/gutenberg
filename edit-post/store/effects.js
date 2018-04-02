@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { reduce, values, some, get } from 'lodash';
+import { reduce, values, some } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -92,10 +92,13 @@ const effects = {
 	INIT( _, store ) {
 		// Select the block settings tab when the selected block changes
 		subscribe( onChangeListener(
-			() => get( select( 'core/editor' ).getSelectedBlock(), 'uid' ),
-			( selectedBlockUid ) => {
-				if ( selectedBlockUid && select( 'core/edit-post' ).isEditorSidebarOpened() ) {
+			() => select( 'core/editor' ).getBlockSelectionStart(),
+			( selectionStart ) => {
+				const isSidebarOpened = select( 'core/edit-post' ).isEditorSidebarOpened();
+				if ( selectionStart && isSidebarOpened ) {
 					store.dispatch( openGeneralSidebar( 'edit-post/block' ) );
+				} else if ( ! selectionStart && isSidebarOpened ) {
+					store.dispatch( openGeneralSidebar( 'edit-post/document' ) );
 				}
 			} )
 		);
